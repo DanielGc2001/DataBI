@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard de Ventas · Olist</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--tx:#1f2933;--mu:#6b7785;--ac:#0f6b66;--bd:#dde3e8}
+@media(prefers-color-scheme:dark){:root{--bg:#14191d;--card:#1d242a;--tx:#e6ebef;--mu:#93a1ad;--ac:#3fb8af;--bd:#2d373f}}
+*{box-sizing:border-box}body{margin:0;font:14px/1.4 system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--tx)}
+header{background:var(--ac);color:#fff;padding:16px 24px}header h1{margin:0;font-size:20px}header p{margin:2px 0 0;opacity:.85;font-size:12px}
+main{max-width:1100px;margin:0 auto;padding:20px}
+.filters{display:flex;flex-wrap:wrap;gap:12px;align-items:end;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:16px}
+.filters label{display:flex;flex-direction:column;font-size:12px;color:var(--mu);gap:4px}
+select,button{padding:7px 10px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--tx);font:inherit;min-width:150px}
+button{background:var(--ac);color:#fff;border:0;min-width:90px;cursor:pointer}
+.grid{display:grid;gap:16px;margin-bottom:16px}.kpis{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}.charts{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:16px}
+.kpi small{color:var(--mu)}.kpi strong{display:block;font-size:28px;margin:4px 0;color:var(--ac)}.kpi code,.src{font-size:11px;color:var(--mu)}
+h2{font-size:14px;margin:0 0 4px}.src{display:block;margin-bottom:10px}
+svg{width:100%;height:auto}svg text{fill:var(--mu);font-size:11px}.ln{fill:none;stroke:var(--ac);stroke-width:2.5}.ax{stroke:var(--bd)}circle{fill:var(--ac)}
+.bar{display:grid;grid-template-columns:150px 1fr 70px;gap:8px;align-items:center;margin:9px 0;font-size:12px}.bar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.track{background:var(--bg);border-radius:4px;height:14px}.track i{display:block;height:100%;background:var(--ac);border-radius:4px}.bar b{text-align:right}
+.wrap{overflow-x:auto}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--bd);white-space:nowrap}th{background:var(--ac);color:#fff}td.n{text-align:right}
+#err{display:none;background:#b3261e;color:#fff;padding:10px 14px;border-radius:8px;margin-bottom:16px}.empty{color:var(--mu);padding:20px 0;text-align:center}
+footer{text-align:center;color:var(--mu);font-size:11px;padding:10px}
+</style></head><body>
+<header><h1>Dashboard de Ventas · Olist E-commerce</h1><p>Data Mart en PostgreSQL · valores en reales brasileños (BRL)</p></header>
+<main>
+<div id="err"></div>
+<section class="filters">
+<label>Año<select id="anio"><option value="">Todos</option></select></label>
+<label>Estado del cliente<select id="estado"><option value="">Todos</option></select></label>
+<label>Categoría<select id="categoria"><option value="">Todas</option></select></label>
+<button type="button" id="limpiar">Limpiar</button></section>
+<section class="grid kpis">
+<div class="card kpi"><small>Ventas totales</small><strong id="k1">…</strong><code>fn_total_ventas()</code></div>
+<div class="card kpi"><small>Total de pedidos</small><strong id="k2">…</strong><code>fn_total_pedidos()</code></div>
+<div class="card kpi"><small>Ticket promedio</small><strong id="k3">…</strong><code>fn_ticket_promedio()</code></div>
+</section>
+<section class="grid charts">
+<div class="card"><h2>Ventas por mes</h2><span class="src">fn_ventas_mensuales()</span><div id="linea"></div></div>
+<div class="card"><h2>Top 10 categorías</h2><span class="src">fn_top_categorias()</span><div id="barras"></div></div>
+</section>
+<section class="card"><h2>Detalle de ventas (20 más recientes)</h2><span class="src">fn_detalle_ventas()</span>
+<div class="wrap"><table><thead><tr><th>Pedido</th><th>Ítem</th><th>Fecha</th><th>Categoría</th><th>Estado</th><th>Precio</th><th>Flete</th></tr></thead><tbody id="tb"></tbody></table></div></section>
+</main><footer>Datos servidos desde el esquema dwh de PostgreSQL</footer>
+<script>
+const $=id=>document.getElementById(id), L=new Intl.NumberFormat('es');
+const money=n=>new Intl.NumberFormat('es',{style:'currency',currency:'BRL'}).format(n);
+const compact=n=>new Intl.NumberFormat('es',{notation:'compact',maximumFractionDigits:1}).format(n);
+const qs=()=>new URLSearchParams({anio:$('anio').value,estado:$('estado').value,categoria:$('categoria').value});
+const get=async p=>{const r=await fetch(p+'?'+qs());if(!r.ok)throw new Error(p+' → '+r.status);return r.json()};
+function fill(id,a){a.forEach(v=>{const o=document.createElement('option');o.value=o.textContent=v;$(id).appendChild(o)})}
+function linea(d){
+  if(!d.length)return '<div class="empty">Sin datos</div>';
+  const W=640,H=240,l=54,r=14,t=14,b=30,mx=Math.max(...d.map(x=>x.ventas_totales))||1,st=Math.ceil(d.length/12);
+  const X=i=>l+(d.length<2?(W-l-r)/2:i*(W-l-r)/(d.length-1)),Y=v=>H-b-v/mx*(H-b-t);
+  let s=`<svg viewBox="0 0 ${W} ${H}">`;
+  [0,.5,1].forEach(k=>{const y=Y(mx*k);s+=`<line class="ax" x1="${l}" x2="${W-r}" y1="${y}" y2="${y}"/><text x="${l-6}" y="${y+4}" text-anchor="end">${compact(mx*k)}</text>`});
+  s+=`<polyline class="ln" points="${d.map((x,i)=>X(i)+','+Y(x.ventas_totales)).join(' ')}"/>`;
+  d.forEach((x,i)=>{s+=`<circle cx="${X(i)}" cy="${Y(x.ventas_totales)}" r="3.5"><title>${x.mes_nombre} ${x.periodo_anio}: ${money(x.ventas_totales)}</title></circle>`;
+    if(i%st==0)s+=`<text x="${X(i)}" y="${H-10}" text-anchor="middle">${x.mes_nombre.slice(0,3)} ${String(x.periodo_anio).slice(2)}</text>`});
+  return s+'</svg>';
+}
+function barras(d){
+  if(!d.length)return '<div class="empty">Sin datos</div>';
+  const mx=d[0].ventas_totales||1;
+  return d.map(x=>`<div class="bar"><span title="${x.categoria}">${x.categoria}</span><div class="track"><i style="width:${x.ventas_totales/mx*100}%"></i></div><b>${compact(x.ventas_totales)}</b></div>`).join('');
+}
+function tabla(d){
+  const tb=$('tb');tb.replaceChildren();
+  if(!d.length){tb.innerHTML='<tr><td colspan="7" class="empty">Sin datos</td></tr>';return}
+  d.forEach(x=>{const tr=tb.insertRow();
+    [x.order_id.slice(0,8)+'…',x.order_item_id,x.fecha,x.categoria,x.estado_cliente,money(x.price),money(x.freight_value)]
+     .forEach((v,i)=>{const td=tr.insertCell();td.textContent=v;if(i>4)td.className='n'})});
+}
+async function cargar(){
+  try{
+    const [k,m,t,d]=await Promise.all([get('/api/kpis'),get('/api/mensual'),get('/api/top-categorias'),get('/api/detalle')]);
+    $('k1').textContent=money(k.ventas_totales);$('k2').textContent=L.format(k.total_pedidos);
+    $('k3').textContent=k.ticket_promedio==null?'—':money(k.ticket_promedio);
+    $('linea').innerHTML=linea(m);$('barras').innerHTML=barras(t);tabla(d);$('err').style.display='none';
+  }catch(e){$('err').textContent='No se pudo consultar la base de datos: '+e.message;$('err').style.display='block'}
+}
+['anio','estado','categoria'].forEach(id=>$(id).addEventListener('change',cargar));
+$('limpiar').onclick=()=>{['anio','estado','categoria'].forEach(id=>$(id).value='');cargar()};
+(async()=>{try{const f=await (await fetch('/api/filtros')).json();fill('anio',f.anios);fill('estado',f.estados);fill('categoria',f.categorias)}catch(e){}cargar()})();
+</script></body></html>

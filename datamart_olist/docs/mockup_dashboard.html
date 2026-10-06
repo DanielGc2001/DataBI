@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mockup · Dashboard Olist</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--tx:#1f2933;--mu:#6b7785;--ac:#0f6b66;--bd:#dde3e8}
+@media(prefers-color-scheme:dark){:root{--bg:#14191d;--card:#1d242a;--tx:#e6ebef;--mu:#93a1ad;--ac:#3fb8af;--bd:#2d373f}}
+*{box-sizing:border-box}body{margin:0;font:14px/1.4 system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--tx)}
+header{background:var(--ac);color:#fff;padding:16px 24px}header h1{margin:0;font-size:20px}header p{margin:2px 0 0;opacity:.85;font-size:12px}
+main{max-width:1100px;margin:0 auto;padding:20px}
+.filters{display:flex;flex-wrap:wrap;gap:12px;align-items:end;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:16px}
+.filters label{display:flex;flex-direction:column;font-size:12px;color:var(--mu);gap:4px}
+select,button{padding:7px 10px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--tx);font:inherit;min-width:150px}
+button{background:var(--ac);color:#fff;border:0;min-width:90px;cursor:pointer}
+.grid{display:grid;gap:16px;margin-bottom:16px}.kpis{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}.charts{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:16px}
+.kpi small{color:var(--mu)}.kpi strong{display:block;font-size:28px;margin:4px 0;color:var(--ac)}.kpi code{font-size:11px;color:var(--mu)}
+h2{font-size:14px;margin:0 0 4px}.src{font-size:11px;color:var(--mu);margin-bottom:10px;display:block}
+svg{width:100%;height:auto}svg text{fill:var(--mu);font-size:11px}.ln{fill:none;stroke:var(--ac);stroke-width:2.5}.ar{fill:var(--ac);opacity:.12}circle{fill:var(--ac)}.ax{stroke:var(--bd)}
+.bar{display:grid;grid-template-columns:150px 1fr 60px;gap:8px;align-items:center;margin:9px 0;font-size:12px}.bar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.track{background:var(--bg);border-radius:4px;height:14px}.track i{display:block;height:100%;background:var(--ac);border-radius:4px}.bar b{text-align:right}
+.wrap{overflow-x:auto}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--bd);white-space:nowrap}th{background:var(--ac);color:#fff;font-weight:600}td.n{text-align:right}
+footer{text-align:center;color:var(--mu);font-size:11px;padding:10px}
+</style></head><body>
+<header><h1>Dashboard de Ventas · Olist E-commerce</h1><p>Mockup · Data Mart en PostgreSQL (esquema dwh)</p></header>
+<main>
+<section class="filters">
+<label>Año<select><option>Todos</option><option>2016</option><option selected>2017</option><option>2018</option></select></label>
+<label>Estado del cliente<select><option>Todos</option><option>SP</option><option>RJ</option><option>MG</option><option>PR</option></select></label>
+<label>Categoría<select><option>Todas</option><option>health_beauty</option><option>watches_gifts</option><option>bed_bath_table</option></select></label>
+<button type="button">Aplicar</button></section>
+
+<section class="grid kpis">
+<div class="card kpi"><small>Ventas totales</small><strong>$13.49M</strong><code>fn_total_ventas(anio, estado, categoria)</code></div>
+<div class="card kpi"><small>Total de pedidos</small><strong>98,199</strong><code>fn_total_pedidos(anio, estado, categoria)</code></div>
+<div class="card kpi"><small>Ticket promedio</small><strong>$137.42</strong><code>fn_ticket_promedio(anio, estado, categoria)</code></div>
+</section>
+
+<section class="grid charts">
+<div class="card"><h2>Ventas por mes (líneas)</h2><span class="src">Origen: fn_ventas_mensuales() · ejemplo 2017</span>
+<svg viewBox="0 0 600 220" role="img" aria-label="Ventas por mes"><line class="ax" x1="40" y1="190" x2="580" y2="190"/><line class="ax" x1="40" y1="30" x2="580" y2="30"/><text x="4" y="34">$1.0M</text><text x="4" y="194">$0</text>
+<polygon class="ar" points="40,190 40,171 89,151 138,131 187,134 236,110 285,121 335,112 384,99 433,91 482,85 531,30 580,72 580,190"/><polyline class="ln" points="40,171 89,151 138,131 187,134 236,110 285,121 335,112 384,99 433,91 482,85 531,30 580,72"/><circle cx="40" cy="171" r="3.5"/><circle cx="89" cy="151" r="3.5"/><circle cx="138" cy="131" r="3.5"/><circle cx="187" cy="134" r="3.5"/><circle cx="236" cy="110" r="3.5"/><circle cx="285" cy="121" r="3.5"/><circle cx="335" cy="112" r="3.5"/><circle cx="384" cy="99" r="3.5"/><circle cx="433" cy="91" r="3.5"/><circle cx="482" cy="85" r="3.5"/><circle cx="531" cy="30" r="3.5"/><circle cx="580" cy="72" r="3.5"/><text x="40" y="208" text-anchor="middle">E</text><text x="89" y="208" text-anchor="middle">F</text><text x="138" y="208" text-anchor="middle">M</text><text x="187" y="208" text-anchor="middle">A</text><text x="236" y="208" text-anchor="middle">M</text><text x="285" y="208" text-anchor="middle">J</text><text x="335" y="208" text-anchor="middle">J</text><text x="384" y="208" text-anchor="middle">A</text><text x="433" y="208" text-anchor="middle">S</text><text x="482" y="208" text-anchor="middle">O</text><text x="531" y="208" text-anchor="middle">N</text><text x="580" y="208" text-anchor="middle">D</text></svg></div>
+<div class="card"><h2>Top 5 categorías (barras)</h2><span class="src">Origen: v_top_categorias</span><div class="bar"><span>health_beauty</span><div class="track"><i style="width:100%"></i></div><b>$1.26M</b></div><div class="bar"><span>watches_gifts</span><div class="track"><i style="width:95%"></i></div><b>$1.20M</b></div><div class="bar"><span>bed_bath_table</span><div class="track"><i style="width:83%"></i></div><b>$1.04M</b></div><div class="bar"><span>sports_leisure</span><div class="track"><i style="width:78%"></i></div><b>$0.98M</b></div><div class="bar"><span>computers_accessories</span><div class="track"><i style="width:72%"></i></div><b>$0.90M</b></div></div>
+</section>
+
+<section class="card"><h2>Detalle de ventas</h2><span class="src">Origen: v_detalle_ventas</span>
+<div class="wrap"><table><thead><tr><th>Pedido</th><th>Fecha</th><th>Categoría</th><th>Estado</th><th>Precio</th><th>Flete</th></tr></thead><tbody><tr><td>912859fe…</td><td>2018-08-29</td><td>watches_gifts</td><td>SP</td><td class=n>$169.80</td><td class=n>$8.45</td></tr><tr><td>d03ca98f…</td><td>2018-08-29</td><td>food</td><td>SP</td><td class=n>$109.90</td><td class=n>$9.52</td></tr><tr><td>fb393211…</td><td>2018-08-29</td><td>watches_gifts</td><td>SP</td><td class=n>$99.00</td><td class=n>$7.95</td></tr><tr><td>bee12e86…</td><td>2018-08-29</td><td>health_beauty</td><td>SP</td><td class=n>$91.55</td><td class=n>$7.90</td></tr><tr><td>0b223d92…</td><td>2018-08-29</td><td>kitchen_dining_laundry_garden_furniture</td><td>PR</td><td class=n>$209.00</td><td class=n>$46.48</td></tr></tbody></table></div></section>
+</main><footer>Mockup estático · los datos reales se consultan con las funciones y vistas del esquema dwh</footer>
+</body></html>

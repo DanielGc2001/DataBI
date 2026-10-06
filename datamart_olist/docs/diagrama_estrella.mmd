@@ -1,0 +1,41 @@
+erDiagram
+    dim_tiempo   ||--o{ fact_ventas : tiempo_key
+    dim_producto ||--o{ fact_ventas : producto_key
+    dim_cliente  ||--o{ fact_ventas : cliente_key
+
+    fact_ventas {
+        bigint venta_key PK
+        int tiempo_key FK
+        int producto_key FK
+        int cliente_key FK
+        varchar order_id
+        smallint order_item_id
+        varchar order_status
+        numeric price
+        numeric freight_value
+        numeric total_item
+        int dias_entrega
+        boolean entrega_tardia
+    }
+    dim_tiempo {
+        int tiempo_key PK
+        date fecha
+        smallint anio
+        smallint trimestre
+        smallint mes
+        varchar nombre_mes
+        smallint dia_semana
+    }
+    dim_producto {
+        int producto_key PK
+        varchar product_id
+        varchar categoria_pt
+        varchar categoria_en
+        numeric peso_g
+    }
+    dim_cliente {
+        int cliente_key PK
+        varchar customer_unique_id
+        varchar ciudad
+        char estado
+    }

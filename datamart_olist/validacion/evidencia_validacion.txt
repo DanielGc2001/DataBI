@@ -1,0 +1,74 @@
+=== 1. CANTIDAD DE REGISTROS (staging vs. modelo) ===
+                    tabla                     | filas  
+----------------------------------------------+--------
+ dwh.dim_tiempo                               |   1096
+ stg.products                                 |  32951
+ dwh.dim_producto                             |  32951
+ dwh.dim_cliente                              |  96096
+ dwh.fact_ventas                              | 112650
+ stg.order_items                              | 112650
+ stg.customers (customer_unique_id distintos) |  96096
+(7 rows)
+
+=== 2. INTEGRIDAD: hechos sin dimensión (debe dar 0 en todas) ===
+ huerfanos_tiempo | huerfanos_producto | huerfanos_cliente 
+------------------+--------------------+-------------------
+                0 |                  0 |                 0
+(1 row)
+
+=== 3. INTEGRIDAD: granularidad sin duplicados (debe dar 0) ===
+ duplicados_pedido_item 
+------------------------
+                      0
+(1 row)
+
+=== 4. VALORES NULOS RELEVANTES ===
+ sin_fecha_entrega | sin_dato_entrega_tardia | sin_precio_o_flete 
+-------------------+-------------------------+--------------------
+              2454 |                    2454 |                  0
+(1 row)
+
+ productos_sin_categoria | productos_sin_peso 
+-------------------------+--------------------
+                     610 |                  2
+(1 row)
+
+=== 5. TOTALES: staging vs. hechos (deben coincidir) ===
+ ventas_staging | ventas_dwh  | flete_staging | flete_dwh  
+----------------+-------------+---------------+------------
+    13591643.70 | 13591643.70 |    2251909.54 | 2251909.54
+(1 row)
+
+=== 6. KPIs PRINCIPALES (sin filtros) ===
+ ventas_totales | total_pedidos | ticket_promedio 
+----------------+---------------+-----------------
+    13494400.74 |         98199 |          137.42
+(1 row)
+
+=== 7. VENTAS POR MES (año 2017) ===
+ periodo_anio | periodo_mes | mes_nombre | ventas_totales | total_pedidos | ticket_promedio 
+--------------+-------------+------------+----------------+---------------+-----------------
+         2017 |           1 | Enero      |      120098.27 |           787 |          152.60
+         2017 |           2 | Febrero    |      244959.35 |          1718 |          142.58
+         2017 |           3 | Marzo      |      368341.32 |          2617 |          140.75
+         2017 |           4 | Abril      |      353842.98 |          2377 |          148.86
+         2017 |           5 | Mayo       |      503159.19 |          3640 |          138.23
+         2017 |           6 | Junio      |      429916.61 |          3205 |          134.14
+         2017 |           7 | Julio      |      492287.30 |          3946 |          124.76
+         2017 |           8 | Agosto     |      568245.79 |          4272 |          133.02
+         2017 |           9 | Septiembre |      621415.91 |          4227 |          147.01
+         2017 |          10 | Octubre    |      660179.62 |          4547 |          145.19
+         2017 |          11 | Noviembre  |     1003862.14 |          7421 |          135.27
+         2017 |          12 | Diciembre  |      742183.79 |          5618 |          132.11
+(12 rows)
+
+=== 8. TOP 5 CATEGORÍAS ===
+     categoria_en      | ventas_totales | total_pedidos 
+-----------------------+----------------+---------------
+ health_beauty         |     1255695.13 |          8800
+ watches_gifts         |     1198185.21 |          5604
+ bed_bath_table        |     1035964.06 |          9399
+ sports_leisure        |      979740.92 |          7673
+ computers_accessories |      904322.02 |          6654
+(5 rows)
+

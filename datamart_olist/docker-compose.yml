@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:16
+    container_name: olist_dwh
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: olist
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d:ro   # se ejecutan en orden alfabético, solo la 1ª vez
+      - ./data:/data:ro                           # CSV de Kaggle
+      - ./validacion:/validacion:ro
+    healthcheck:   # -h 127.0.0.1: durante la carga inicial Postgres no escucha por TCP, así que "healthy" = carga terminada
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d olist"]
+      interval: 5s
+      timeout: 5s
+      retries: 90
+
+  web:                                              # dashboard funcional (API Flask + página)
+    build: ./app
+    container_name: olist_web
+    environment:
+      DB_HOST: db
+      DB_NAME: olist
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    ports:
+      - "8081:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      retries: 20
+
+  adminer:                                          # interfaz web de la BD (opcional)
+    image: adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
